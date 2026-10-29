@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#121212">
+<title>Libro de Ingresos</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Libro de Ingresos">
+<style>
+  html,body{margin:0;height:100%;background:#121212;color:#f2f0ed;font-family:system-ui,sans-serif}
+  main{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:0 16px}
+  img{width:96px;height:96px;border-radius:22px}
+  a{color:#c8a27c;font-size:18px}
+</style>
+</head>
+<body>
+<main>
+  <img src="icono-192.png" alt="">
+  <p>Abriendo el Libro de Ingresos…</p>
+  <a href="https://claude.ai/code/artifact/e3ef1c60-5544-4039-bd01-3986f5dc42f9">Si no se abre, toca aquí</a>
+</main>
+<script>
+  // Al instalarlo desde aquí, el acceso directo usa el logo del estudio y abre el Libro.
+  if (new URLSearchParams(location.search).get('instalar') === null) {
+    location.replace('https://claude.ai/code/artifact/e3ef1c60-5544-4039-bd01-3986f5dc42f9');
+  }
+</script>
+</body>
+</html>
