@@ -6,28 +6,45 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#121212">
 <title>Libro de Ingresos</title>
+<script>
+  // El acceso directo abre esta página con ?abrir (o como app instalada): ahí se salta directo al Libro.
+  if (location.search.indexOf('abrir') !== -1 || matchMedia('(display-mode: standalone)').matches) {
+    location.replace('https://claude.ai/code/artifact/e3ef1c60-5544-4039-bd01-3986f5dc42f9');
+  }
+</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Libro de Ingresos">
 <style>
-  html,body{margin:0;height:100%;background:#121212;color:#f2f0ed;font-family:system-ui,sans-serif}
-  main{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;padding:0 16px}
-  img{width:96px;height:96px;border-radius:22px}
-  a{color:#c8a27c;font-size:18px}
+  html,body{margin:0;min-height:100%;background:#121212;color:#f2f0ed;font-family:system-ui,sans-serif}
+  main{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;padding:24px 16px;box-sizing:border-box}
+  img{width:120px;height:120px;border-radius:26px}
+  h1{font-size:22px;margin:0;font-weight:600}
+  p{margin:0;color:#a19d96;line-height:1.5;max-width:340px}
+  button,.abrir{font:inherit;font-size:17px;border:0;border-radius:12px;padding:14px 22px;cursor:pointer;text-decoration:none}
+  button{background:#c8a27c;color:#1a1612;font-weight:600;display:none}
+  .abrir{background:#232220;color:#f2f0ed}
+  b{color:#f2f0ed}
 </style>
 </head>
 <body>
 <main>
   <img src="icono-192.png" alt="">
-  <p>Abriendo el Libro de Ingresos…</p>
-  <a href="https://claude.ai/code/artifact/e3ef1c60-5544-4039-bd01-3986f5dc42f9">Si no se abre, toca aquí</a>
+  <h1>Libro de Ingresos</h1>
+  <button id="instalar">Agregar a la pantalla de inicio</button>
+  <p id="pasos">Para tener el ícono en tu celular: en Chrome toca el menú <b>⋮</b> y elige <b>"Agregar a la pantalla principal"</b> o <b>"Instalar app"</b>.</p>
+  <a class="abrir" href="https://claude.ai/code/artifact/e3ef1c60-5544-4039-bd01-3986f5dc42f9">Abrir el Libro</a>
 </main>
 <script>
-  // Al instalarlo desde aquí, el acceso directo usa el logo del estudio y abre el Libro.
-  if (new URLSearchParams(location.search).get('instalar') === null) {
-    location.replace('https://claude.ai/code/artifact/e3ef1c60-5544-4039-bd01-3986f5dc42f9');
-  }
+  var aviso;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); aviso = e;
+    document.getElementById('instalar').style.display = 'inline-block';
+  });
+  document.getElementById('instalar').addEventListener('click', function () {
+    if (aviso) { aviso.prompt(); aviso = null; this.style.display = 'none'; }
+  });
 </script>
 </body>
 </html>
