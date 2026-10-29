@@ -1,9 +1,10 @@
 {
+  "id": "/libro/",
   "name": "Libro de Ingresos locoviniAUDIO",
   "short_name": "Libro de Ingresos",
-  "start_url": "./",
-  "scope": "./",
-  "display": "browser",
+  "start_url": "/libro/?abrir",
+  "scope": "/libro/",
+  "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#121212",
   "icons": [
