@@ -107,9 +107,13 @@ h1{font-family:var(--f-display);font-weight:400;font-size:clamp(20px,6vw,26px);l
 
 /* faders entran en posición */
 @media (prefers-reduced-motion: no-preference){
-  .logo .cap{animation:slide 1.1s cubic-bezier(.2,.8,.2,1) both}
-  .logo .c0{--from:140px}.logo .c1{--from:-120px;animation-delay:.08s}.logo .c2{--from:110px;animation-delay:.16s}
-  @keyframes slide{from{transform:translateY(var(--from))}to{transform:none}}
+  .cap{transform-box:view-box}
+  .c0{animation:f0 2.6s ease-in-out infinite alternate}
+  .c1{animation:f1 2.1s ease-in-out infinite alternate}
+  .c2{animation:f2 3.2s ease-in-out infinite alternate}
+  @keyframes f0{from{transform:translateY(0)}to{transform:translateY(100px)}}
+  @keyframes f1{from{transform:translateY(0)}to{transform:translateY(-280px)}}
+  @keyframes f2{from{transform:translateY(0)}to{transform:translateY(110px)}}
   .ch .meter{transform-origin:bottom;animation:lvl 1.2s ease-out both}
   @keyframes lvl{from{transform:scaleY(.2)}}
 }
