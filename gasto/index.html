@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#121212">
+<title>Anotar gasto</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="../libro/icono-192.png">
+<link rel="apple-touch-icon" href="../libro/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Anotar gasto">
+<style>
+:root{--bg:#121212;--surface:#1b1b1a;--surface-2:#242322;--line:#302e2b;--line-strong:#45423d;--fg:#f2f0ed;--muted:#9a968f;--faint:#6c6863;--latte:#c8a27c;--on-latte:#1a1612;--ok:#9fc0a6;--ok-bg:#1f2a22;--warn:#e0be82;--warn-bg:#2d2618;--bad:#d99a96;--bad-bg:#2e1f1e;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body{padding:env(safe-area-inset-top,0) max(16px,env(safe-area-inset-right,0)) calc(32px + env(safe-area-inset-bottom,0)) max(16px,env(safe-area-inset-left,0))}
+.wrap{max-width:560px;margin:0 auto}
+header{display:flex;align-items:center;gap:12px;padding:14px 0 10px;position:sticky;top:0;background:var(--bg);z-index:5}
+header img{width:36px;height:36px;border-radius:9px}
+header b{display:block;font-size:13px;letter-spacing:.14em;font-weight:600}
+header small{display:block;color:var(--muted);font-size:12px}
+.sp{flex:1}
+.net{font-size:12px;padding:4px 10px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.net::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.net.on{background:var(--ok-bg);color:var(--ok)}.net.off{background:var(--bad-bg);color:var(--bad)}
+label.t{display:block;font-size:12px;color:var(--muted);margin:16px 0 6px;letter-spacing:.04em}
+.amt{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line-strong);border-radius:14px;padding:6px 14px}
+.amt span{font-size:28px;color:var(--muted);font-family:ui-monospace,Consolas,monospace}
+.amt input{flex:1;min-width:0;border:0;background:transparent;font-size:36px;font-family:ui-monospace,Consolas,monospace;padding:8px 0;color:var(--fg);outline:none}
+.amt:focus-within{border-color:var(--latte)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chips button{border:1px solid var(--line-strong);background:transparent;color:var(--fg);border-radius:999px;padding:9px 13px;font:inherit;font-size:14px;cursor:pointer}
+.chips button.on{background:var(--latte);border-color:var(--latte);color:var(--on-latte);font-weight:600}
+select,input[type=text],input[type=date]{width:100%;background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;padding:12px;font:inherit;color:var(--fg)}
+select:focus,input:focus{outline:none;border-color:var(--latte)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:999px;padding:9px 16px;font:inherit;font-size:14px;color:var(--muted);cursor:pointer}
+.seg button.on{background:var(--latte);color:var(--on-latte);font-weight:600}
+.save{display:block;width:100%;margin-top:22px;border:0;border-radius:14px;padding:17px;font:inherit;font-size:18px;font-weight:700;background:var(--latte);color:var(--on-latte);cursor:pointer}
+.save:active{filter:brightness(.92)}
+.err{color:var(--bad);font-size:13px;min-height:18px;margin-top:4px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-top:24px}
+.box h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;font-weight:600;display:flex;gap:8px;align-items:center}
+.box h2 .r{margin-left:auto;text-transform:none;letter-spacing:0}
+.it{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.it:first-of-type{border-top:0}
+.it b{font-weight:500;display:block}
+.it small{color:var(--muted);font-size:13px}
+.it .v{text-align:right;font-family:ui-monospace,Consolas,monospace;white-space:nowrap}
+.it .v small{display:block;font-family:inherit}
+.pend{color:var(--warn)}.subido{color:var(--ok)}
+.empty{color:var(--muted);font-size:14px;padding:4px 0}
+.btn2{border:1px solid var(--line-strong);background:transparent;color:var(--fg);border-radius:10px;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer}
+.del{border:0;background:transparent;color:var(--faint);font-size:18px;cursor:pointer;padding:0 0 0 8px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0));transform:translate(-50%,30px);background:var(--fg);color:var(--bg);padding:12px 20px;border-radius:999px;font-size:15px;opacity:0;transition:all .25s;pointer-events:none;max-width:calc(100% - 32px);text-align:center;z-index:20}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.aviso{background:var(--warn-bg);color:var(--warn);border-radius:12px;padding:12px 14px;font-size:14px;margin-top:12px}
+a{color:var(--latte)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <img src="../libro/icono-192.png" alt="">
+  <span><b>ANOTAR GASTO</b><small>Se guarda aunque no haya señal</small></span>
+  <span class="sp"></span>
+  <span class="net" id="net">…</span>
+</header>
+
+<div class="aviso" id="sinClave" hidden>Este anotador todavía no está vinculado a tu Libro. Ábrelo una vez desde el enlace de configuración que te mandó Claude.</div>
+<div class="aviso" id="instalarAviso" hidden>Para tenerlo en el celular: en Chrome toca <b>⋮</b> y elige <b>“Agregar a la pantalla principal”</b> o <b>“Instalar app”</b>. <button class="btn2" id="bInst" hidden>Instalar</button></div>
+
+<form id="f" autocomplete="off" novalidate>
+  <label class="t" for="monto">Monto (USD)</label>
+  <div class="amt"><span>$</span><input id="monto" inputmode="decimal" placeholder="0,00" enterkeyhint="done"></div>
+  <div class="err" id="eMonto"></div>
+
+  <label class="t">Categoría</label>
+  <div class="chips" id="cats"></div>
+  <div class="err" id="eCat"></div>
+
+  <label class="t">¿Cómo pagaste?</label>
+  <div class="chips" id="medios"></div>
+  <div id="wCta" hidden><label class="t" for="cta" id="lCta">Desde qué cuenta</label><select id="cta"></select></div>
+
+  <label class="t" for="desc">Qué compraste (opcional)</label>
+  <input type="text" id="desc" list="dlDesc" placeholder="Helado, café, gasolina…">
+  <datalist id="dlDesc"></datalist>
+
+  <div class="row2">
+    <div><label class="t" for="fecha">Fecha</label><input type="date" id="fecha"></div>
+    <div><label class="t">¿Era necesario?</label><div class="seg" id="nec"><button type="button" data-n="Necesario">Sí</button><button type="button" data-n="Prescindible">No</button></div></div>
+  </div>
+
+  <button class="save" type="submit" id="bSave">Guardar gasto</button>
+</form>
+
+<section class="box">
+  <h2>Por subir al Libro<span class="r" id="nPend"></span></h2>
+  <div id="pend"></div>
+  <p class="empty" id="ayuda" style="margin:10px 0 0;font-size:13px">Se suben solos apenas haya internet. Luego, al abrir tu Libro, quedan registrados en Gastos personales.</p>
+</section>
+
+<section class="box">
+  <h2>Ya subidos</h2>
+  <div id="subidos"></div>
+</section>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+/* Receptor en tu Google Drive (Apps Script). Solo acepta datos con tu clave privada. */
+var RECEPTOR="https://script.google.com/macros/s/AKfycbz67NJw1Klp8FxWq_XZECqN0GPo3MHlvSkRO6GpntT9QAk4dVrs9FdcWkyrVtzOu3th/exec";
+var CATS=["Alimentación y supermercado","Restaurantes y comida fuera","Vehículo: combustible","Vehículo: mantenimiento, seguro y matrícula","Transporte","Celulares e internet","Vivienda y hogar","Salud y farmacia","Educación de los hijos","Hijos: gastos y mesadas","Ropa y calzado","Cuidado personal","Entretenimiento y salidas","Suscripciones personales","Regalos y celebraciones","Ayuda a la familia","Deudas y préstamos","Impuestos y trámites personales","Compras varias","Otros"];
+var PRESC=["Restaurantes y comida fuera","Entretenimiento y salidas","Suscripciones personales","Regalos y celebraciones","Ropa y calzado","Compras varias"];
+var MEDIOS=["Efectivo","App o transferencia","Tarjeta de débito","Tarjeta de crédito"];
+var CUENTAS=["Banco Pichincha","Coop JEP","Coop Jardín Azuayo","Banco Pacífico"];
+var TARJETAS=["Pacificard Mastercard"];
+
+/* ---------- almacenamiento local (IndexedDB, compartido con el trabajador sin conexión) ---------- */
+function idb(){return new Promise(function(res,rej){var r=indexedDB.open("anotador",1);r.onupgradeneeded=function(){var d=r.result;if(!d.objectStoreNames.contains("cola"))d.createObjectStore("cola",{keyPath:"id"});if(!d.objectStoreNames.contains("cfg"))d.createObjectStore("cfg")};r.onsuccess=function(){res(r.result)};r.onerror=function(){rej(r.error)}})}
+function tx(store,mode,fn){return idb().then(function(d){return new Promise(function(res,rej){var t=d.transaction(store,mode),s=t.objectStore(store),out=fn(s);t.oncomplete=function(){res(out&&out.result!==undefined?out.result:out)};t.onerror=function(){rej(t.error)}})})}
+function todos(){return tx("cola","readonly",function(s){return s.getAll()})}
+function poner(it){return tx("cola","readwrite",function(s){s.put(it)})}
+function quitar(id){return tx("cola","readwrite",function(s){s.delete(id)})}
+function cfgGet(k){return tx("cfg","readonly",function(s){return s.get(k)})}
+function cfgSet(k,v){return tx("cfg","readwrite",function(s){s.put(v,k)})}
+
+var $=function(s){return document.querySelector(s)};
+var esc=function(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})};
+var num=function(v){var n=parseFloat(String(v==null?"":v).replace(/\s/g,"").replace(",","."));return isFinite(n)?n:0};
+var fmt=function(n){return "$"+num(n).toFixed(2).replace(".",",")};
+var hoyISO=function(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+var MES3=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+var fdate=function(i){if(!i)return"";var p=i.split("-");return (+p[2])+" "+MES3[+p[1]-1]};
+var hora=function(iso){try{var d=new Date(iso);return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")}catch(e){return""}};
+var tt;function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on")},2600)}
+var uid=function(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)};
+
+var st={cat:"",medio:"Efectivo",cuenta:"",nec:"Necesario",necTocada:false,clave:"",ult:{}};
+
+function pintarCats(){$("#cats").innerHTML=CATS.map(function(c){return '<button type="button" data-c="'+esc(c)+'" class="'+(c===st.cat?"on":"")+'">'+esc(c)+'</button>'}).join("")}
+function pintarMedios(){$("#medios").innerHTML=MEDIOS.map(function(m){return '<button type="button" data-m="'+m+'" class="'+(m===st.medio?"on":"")+'">'+(m==="App o transferencia"?"App o transferencia":m)+'</button>'}).join("");pintarCuenta()}
+function cuentasPara(m){return m==="Tarjeta de crédito"?TARJETAS:(m==="App o transferencia"||m==="Tarjeta de débito")?CUENTAS:[]}
+function pintarCuenta(){var l=cuentasPara(st.medio);$("#wCta").hidden=!l.length;if(!l.length){st.cuenta="";return}
+  $("#lCta").textContent=st.medio==="Tarjeta de crédito"?"Qué tarjeta":"Desde qué cuenta";
+  if(l.indexOf(st.cuenta)<0){var u=(st.ult.cuentas||{})[st.medio];st.cuenta=l.indexOf(u)>=0?u:l[0]}
+  $("#cta").innerHTML=l.map(function(c){return "<option"+(c===st.cuenta?" selected":"")+">"+esc(c)+"</option>"}).join("")}
+function pintarNec(){[].forEach.call(document.querySelectorAll("#nec button"),function(b){b.classList.toggle("on",b.dataset.n===st.nec)})}
+
+$("#cats").onclick=function(e){var b=e.target.closest("[data-c]");if(!b)return;st.cat=b.dataset.c;$("#eCat").textContent="";if(!st.necTocada)st.nec=PRESC.indexOf(st.cat)>=0?"Prescindible":"Necesario";pintarCats();pintarNec()};
+$("#medios").onclick=function(e){var b=e.target.closest("[data-m]");if(!b)return;st.medio=b.dataset.m;pintarMedios()};
+$("#cta").onchange=function(e){st.cuenta=e.target.value};
+$("#nec").onclick=function(e){var b=e.target.closest("[data-n]");if(!b)return;st.nec=b.dataset.n;st.necTocada=true;pintarNec()};
+
+function limpiar(){$("#monto").value="";$("#desc").value="";$("#fecha").value=hoyISO();st.cat="";st.necTocada=false;st.nec="Necesario";pintarCats();pintarNec();$("#eMonto").textContent="";$("#eCat").textContent=""}
+
+$("#f").onsubmit=function(e){e.preventDefault();
+  var m=Math.round(num($("#monto").value)*100)/100,ok=true;
+  if(!(m>0)){$("#eMonto").textContent="Pon el monto.";ok=false}
+  if(!st.cat){$("#eCat").textContent="Elige una categoría.";ok=false}
+  if(!ok)return;
+  var it={id:uid(),creado:new Date().toISOString(),fecha:$("#fecha").value||hoyISO(),monto:m.toFixed(2),categoria:st.cat,necesidad:st.nec,medio:st.medio,cuenta:cuentasPara(st.medio).length?st.cuenta:"",descripcion:$("#desc").value.trim(),notas:"",estado:"pendiente"};
+  st.ult={medio:st.medio,cuenta:it.cuenta,cuentas:Object.assign({},st.ult.cuentas||{},(function(){var o={};o[st.medio]=it.cuenta;return o})())};
+  cfgSet("ultimo",st.ult);
+  if(it.descripcion){cfgGet("descs").then(function(d){d=(d||[]).filter(function(x){return x!==it.descripcion});d.unshift(it.descripcion);cfgSet("descs",d.slice(0,40));pintarDescs(d)})}
+  poner(it).then(function(){toast(navigator.onLine?"Gasto guardado · subiendo…":"Gasto guardado en el teléfono · se sube cuando haya señal");limpiar();pintarListas();pedirSync();subir()}).catch(function(){toast("No se pudo guardar en el teléfono")});
+};
+
+function pintarDescs(d){$("#dlDesc").innerHTML=(d||[]).map(function(x){return '<option value="'+esc(x)+'">'}).join("")}
+
+function pintarListas(){
+  todos().then(function(all){
+    var p=all.filter(function(x){return x.estado!=="subido"}).sort(function(a,b){return b.creado.localeCompare(a.creado)});
+    var s=all.filter(function(x){return x.estado==="subido"}).sort(function(a,b){return (b.subido||"").localeCompare(a.subido||"")}).slice(0,15);
+    $("#nPend").textContent=p.length?p.length+(p.length===1?" gasto":" gastos"):"";
+    $("#nPend").className="r "+(p.length?"pend":"subido");
+    $("#pend").innerHTML=p.length?p.map(fila(true)).join(""):'<div class="empty">Nada pendiente: todo está en tu Libro.</div>';
+    $("#subidos").innerHTML=s.length?s.map(fila(false)).join(""):'<div class="empty">Aquí verás los últimos gastos que ya se subieron.</div>';
+  });
+}
+function fila(pend){return function(x){return '<div class="it"><div><b>'+esc(x.descripcion||x.categoria)+'</b><small>'+esc(x.categoria)+' · '+esc([x.medio,x.cuenta].filter(Boolean).join(" · "))+'</small></div><div class="v">'+fmt(x.monto)+'<small class="'+(pend?"pend":"subido")+'">'+fdate(x.fecha)+' '+hora(x.creado)+(pend?' · por subir':' · subido')+'</small></div>'+(pend?'<button class="del" type="button" data-del="'+x.id+'" aria-label="Borrar este gasto">✕</button>':'')+'</div>'}}
+$("#pend").onclick=function(e){var b=e.target.closest("[data-del]");if(!b)return;if(b.dataset.ok){quitar(b.dataset.del).then(pintarListas);toast("Gasto borrado")}else{b.dataset.ok="1";b.textContent="¿Borrar?";b.style.color="var(--bad)";b.style.fontSize="13px";setTimeout(function(){pintarListas()},3500)}};
+
+/* ---------- subir ---------- */
+var subiendo=false;
+function subir(){
+  if(subiendo||!st.clave||RECEPTOR.indexOf("http")!==0)return Promise.resolve();
+  if(!navigator.onLine){return Promise.resolve()}
+  subiendo=true;
+  return todos().then(function(all){
+    var p=all.filter(function(x){return x.estado!=="subido"});
+    if(!p.length)return;
+    return fetch(RECEPTOR,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({k:st.clave,items:p.map(function(x){return{id:x.id,creado:x.creado,fecha:x.fecha,monto:x.monto,categoria:x.categoria,necesidad:x.necesidad,medio:x.medio,cuenta:x.cuenta,descripcion:x.descripcion,notas:x.notas}})})})
+      .then(function(r){return r.json()}).then(function(j){
+        if(!j||!j.ok){if(j&&j.error==="clave")toast("La clave del anotador no coincide");return}
+        var ahora=new Date().toISOString(),ids=j.ids||[];
+        return Promise.all(p.filter(function(x){return ids.indexOf(x.id)>=0}).map(function(x){x.estado="subido";x.subido=ahora;return poner(x)})).then(function(){if(ids.length)toast(ids.length===1?"1 gasto subido a tu Libro":ids.length+" gastos subidos a tu Libro")});
+      });
+  }).catch(function(){}).then(function(){subiendo=false;pintarListas();limpiarViejos()});
+}
+function limpiarViejos(){todos().then(function(all){var s=all.filter(function(x){return x.estado==="subido"}).sort(function(a,b){return (b.subido||"").localeCompare(a.subido||"")});s.slice(60).forEach(function(x){quitar(x.id)})})}
+function pedirSync(){if("serviceWorker" in navigator&&"SyncManager" in window){navigator.serviceWorker.ready.then(function(r){return r.sync.register("subir-gastos")}).catch(function(){})}}
+
+function pintarNet(){var on=navigator.onLine,n=$("#net");n.textContent=on?"Con internet":"Sin señal";n.className="net "+(on?"on":"off")}
+window.addEventListener("online",function(){pintarNet();subir()});
+window.addEventListener("offline",pintarNet);
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"){pintarListas();subir()}});
+setInterval(subir,30000);
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(function(){});navigator.serviceWorker.addEventListener("message",function(e){if(e.data==="subidos")pintarListas()})}
+
+/* instalar */
+var aviso;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();aviso=e;$("#bInst").hidden=false});
+$("#bInst").onclick=function(){if(aviso){aviso.prompt();aviso=null;$("#instalarAviso").hidden=true}};
+
+/* arranque */
+(function(){
+  $("#fecha").value=hoyISO();pintarNet();
+  cfgSet("receptor",RECEPTOR).catch(function(){});
+  var m=location.hash.match(/k=([A-Za-z0-9_-]+)/);
+  var p=m?cfgSet("clave",m[1]).then(function(){history.replaceState(null,"",location.pathname);return m[1]}):cfgGet("clave");
+  p.then(function(k){st.clave=k||"";$("#sinClave").hidden=!!st.clave;
+    var standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;$("#instalarAviso").hidden=!!standalone||!st.clave;
+    return cfgGet("ultimo")}).then(function(u){st.ult=u||{};if(st.ult.medio&&MEDIOS.indexOf(st.ult.medio)>=0){st.medio=st.ult.medio;st.cuenta=st.ult.cuenta||""}
+    pintarCats();pintarMedios();pintarNec();return cfgGet("descs")}).then(function(d){pintarDescs(d);pintarListas();subir()})
+  .catch(function(){pintarCats();pintarMedios();pintarNec()});
+  setTimeout(function(){if(!$("#monto").value)$("#monto").focus()},300);
+})();
+</script>
+</body>
+</html>
