@@ -1,5 +1,5 @@
 /* Anotador rápido locoviniAUDIO: abre sin internet y sube los gastos cuando vuelve la señal. */
-var CACHE = "anotador-v1";
+var CACHE = "anotador-v2";
 var ARCHIVOS = ["./", "index.html", "manifest.webmanifest", "../libro/icono-192.png", "../libro/icono-512.png", "../libro/apple-touch-icon.png"];
 
 self.addEventListener("install", function (e) {
