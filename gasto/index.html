@@ -32,6 +32,7 @@ label.t{display:block;font-size:12px;color:var(--muted);margin:16px 0 6px;letter
 .chips{display:flex;flex-wrap:wrap;gap:7px}
 .chips button{border:1px solid var(--line-strong);background:transparent;color:var(--fg);border-radius:999px;padding:9px 13px;font:inherit;font-size:14px;cursor:pointer}
 .chips button.on{background:var(--latte);border-color:var(--latte);color:var(--on-latte);font-weight:600}
+.subs{margin-top:8px;padding:10px;border-radius:12px;background:var(--surface-2,rgba(128,128,128,.12))}.subs:empty{display:none}.subs button{font-size:13px;padding:8px 11px}
 select,input[type=text],input[type=date]{width:100%;background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;padding:12px;font:inherit;color:var(--fg)}
 select:focus,input:focus{outline:none;border-color:var(--latte)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -80,6 +81,8 @@ a{color:var(--latte)}
 
   <label class="t">Categoría</label>
   <div class="chips" id="cats"></div>
+  <div class="chips subs" id="subs"></div>
+  <p id="trab" style="display:none;font-size:13px;margin:6px 0 0;opacity:.75">Los gastos de Trabajo pasan a los gastos del negocio.</p>
   <div class="err" id="eCat"></div>
 
   <label class="t">¿Cómo pagaste?</label>
@@ -115,8 +118,10 @@ a{color:var(--latte)}
 "use strict";
 /* Receptor en tu Google Drive (Apps Script). Solo acepta datos con tu clave privada. */
 var RECEPTOR="https://script.google.com/macros/s/AKfycbz67NJw1Klp8FxWq_XZECqN0GPo3MHlvSkRO6GpntT9QAk4dVrs9FdcWkyrVtzOu3th/exec";
-var CATS=["Alimentación y supermercado","Restaurantes y comida fuera","Vehículo: combustible","Vehículo: mantenimiento, seguro y matrícula","Transporte","Celulares e internet","Vivienda y hogar","Salud y farmacia","Educación de los hijos","Hijos: gastos y mesadas","Ropa y calzado","Cuidado personal","Entretenimiento y salidas","Suscripciones personales","Regalos y celebraciones","Ayuda a la familia","Deudas y préstamos","Impuestos y trámites personales","Compras varias","Otros"];
-var PRESC=["Restaurantes y comida fuera","Entretenimiento y salidas","Suscripciones personales","Regalos y celebraciones","Ropa y calzado","Compras varias"];
+var PCATS=[["Alimentación",["Supermercado","Mercado y feria","Tiendas de barrio","Panadería","*Restaurantes","*Comida rápida y antojos","Otros"]],["Hogar",["Luz","Agua","Gas","Internet","Celulares","*Entretenimiento","*Suscripciones","Limpieza y artículos de casa","Mantenimiento y reparaciones","Muebles y electrodomésticos","Trámites personales","Impuesto predial","Otros"]],["Vehículo",["Gasolina","Cambio de aceite","Repuestos","Mecánico y mantenimiento","Llantas","*Lavado","Matrícula y SPPAT","Seguro","Peajes y parqueo","Multas","Taxi y bus","Otros"]],["Educación",["Pensión y matrícula","Transporte para educación","Mesadas","Útiles escolares","Material escolar","Uniformes","Libros y cursos","Otros"]],["Salud",["Medicamentos","Consultas médicas","Exámenes de laboratorio","Odontología","Óptica","Seguro médico","Otros"]],["Trabajo",["Transporte de trabajo","Alimentación de trabajo","Compras de trabajo","Impuestos de trabajo","Otros"]],["Deudas y finanzas",["Pago de deudas","Préstamos","Intereses y cargos de tarjeta","Seguro de desgravamen","Comisiones bancarias","Otros"]],["Personal y familia",["*Ropa y calzado","Cuidado personal","*Regalos y celebraciones","*Salidas y paseos","Ayuda a la familia","Otros"]],["Otros",["*Compras varias","Otros"]]];
+var CATS=PCATS.map(function(c){return c[0]});
+var SUBS={};PCATS.forEach(function(c){SUBS[c[0]]=c[1].map(function(x){return x.replace(/^\*/,"")})});
+var PRESC=[];PCATS.forEach(function(c){c[1].forEach(function(x){if(x.charAt(0)==="*")PRESC.push(c[0]+" › "+x.slice(1))})});
 var MEDIOS=["Efectivo","App o transferencia","Tarjeta de débito","Tarjeta de crédito"];
 var CUENTAS=["Banco Pichincha","Coop JEP","Coop Jardín Azuayo","Banco Pacífico"];
 var TARJETAS=["Pacificard Mastercard"];
@@ -141,9 +146,9 @@ var hora=function(iso){try{var d=new Date(iso);return String(d.getHours()).padSt
 var tt;function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on")},2600)}
 var uid=function(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)};
 
-var st={cat:"",medio:"Efectivo",cuenta:"",nec:"Necesario",necTocada:false,clave:"",ult:{}};
+var st={cat:"",sub:"",medio:"Efectivo",cuenta:"",nec:"Necesario",necTocada:false,clave:"",ult:{}};
 
-function pintarCats(){$("#cats").innerHTML=CATS.map(function(c){return '<button type="button" data-c="'+esc(c)+'" class="'+(c===st.cat?"on":"")+'">'+esc(c)+'</button>'}).join("")}
+function pintarCats(){$("#cats").innerHTML=CATS.map(function(c){return '<button type="button" data-c="'+esc(c)+'" class="'+(c===st.cat?"on":"")+'">'+esc(c)+'</button>'}).join("");$("#subs").innerHTML=(SUBS[st.cat]||[]).map(function(x){return '<button type="button" data-s="'+esc(x)+'" class="'+(x===st.sub?"on":"")+'">'+esc(x)+'</button>'}).join("");$("#trab").style.display=st.cat==="Trabajo"?"block":"none"}
 function pintarMedios(){$("#medios").innerHTML=MEDIOS.map(function(m){return '<button type="button" data-m="'+m+'" class="'+(m===st.medio?"on":"")+'">'+(m==="App o transferencia"?"App o transferencia":m)+'</button>'}).join("");pintarCuenta()}
 function cuentasPara(m){return m==="Tarjeta de crédito"?TARJETAS:(m==="App o transferencia"||m==="Tarjeta de débito")?CUENTAS:[]}
 function pintarCuenta(){var l=cuentasPara(st.medio);$("#wCta").hidden=!l.length;if(!l.length){st.cuenta="";return}
@@ -152,19 +157,20 @@ function pintarCuenta(){var l=cuentasPara(st.medio);$("#wCta").hidden=!l.length;
   $("#cta").innerHTML=l.map(function(c){return "<option"+(c===st.cuenta?" selected":"")+">"+esc(c)+"</option>"}).join("")}
 function pintarNec(){[].forEach.call(document.querySelectorAll("#nec button"),function(b){b.classList.toggle("on",b.dataset.n===st.nec)})}
 
-$("#cats").onclick=function(e){var b=e.target.closest("[data-c]");if(!b)return;st.cat=b.dataset.c;$("#eCat").textContent="";if(!st.necTocada)st.nec=PRESC.indexOf(st.cat)>=0?"Prescindible":"Necesario";pintarCats();pintarNec()};
+$("#cats").onclick=function(e){var b=e.target.closest("[data-c]");if(!b)return;if(st.cat!==b.dataset.c){st.cat=b.dataset.c;st.sub=""}$("#eCat").textContent="";if(!st.necTocada)st.nec="Necesario";pintarCats();pintarNec()};
+$("#subs").onclick=function(e){var b=e.target.closest("[data-s]");if(!b)return;st.sub=b.dataset.s;$("#eCat").textContent="";if(!st.necTocada)st.nec=PRESC.indexOf(st.cat+" › "+st.sub)>=0?"Prescindible":"Necesario";pintarCats();pintarNec()};
 $("#medios").onclick=function(e){var b=e.target.closest("[data-m]");if(!b)return;st.medio=b.dataset.m;pintarMedios()};
 $("#cta").onchange=function(e){st.cuenta=e.target.value};
 $("#nec").onclick=function(e){var b=e.target.closest("[data-n]");if(!b)return;st.nec=b.dataset.n;st.necTocada=true;pintarNec()};
 
-function limpiar(){$("#monto").value="";$("#desc").value="";$("#fecha").value=hoyISO();st.cat="";st.necTocada=false;st.nec="Necesario";pintarCats();pintarNec();$("#eMonto").textContent="";$("#eCat").textContent=""}
+function limpiar(){$("#monto").value="";$("#desc").value="";$("#fecha").value=hoyISO();st.cat="";st.sub="";st.necTocada=false;st.nec="Necesario";pintarCats();pintarNec();$("#eMonto").textContent="";$("#eCat").textContent=""}
 
 $("#f").onsubmit=function(e){e.preventDefault();
   var m=Math.round(num($("#monto").value)*100)/100,ok=true;
   if(!(m>0)){$("#eMonto").textContent="Pon el monto.";ok=false}
-  if(!st.cat){$("#eCat").textContent="Elige una categoría.";ok=false}
+  if(!st.cat){$("#eCat").textContent="Elige una categoría.";ok=false}else if(SUBS[st.cat]&&!st.sub){$("#eCat").textContent="Elige una opción de "+st.cat+".";ok=false}
   if(!ok)return;
-  var it={id:uid(),creado:new Date().toISOString(),fecha:$("#fecha").value||hoyISO(),monto:m.toFixed(2),categoria:st.cat,necesidad:st.nec,medio:st.medio,cuenta:cuentasPara(st.medio).length?st.cuenta:"",descripcion:$("#desc").value.trim(),notas:"",estado:"pendiente"};
+  var it={id:uid(),creado:new Date().toISOString(),fecha:$("#fecha").value||hoyISO(),monto:m.toFixed(2),categoria:st.sub?st.cat+" › "+st.sub:st.cat,necesidad:st.nec,medio:st.medio,cuenta:cuentasPara(st.medio).length?st.cuenta:"",descripcion:$("#desc").value.trim(),notas:"",estado:"pendiente"};
   st.ult={medio:st.medio,cuenta:it.cuenta,cuentas:Object.assign({},st.ult.cuentas||{},(function(){var o={};o[st.medio]=it.cuenta;return o})())};
   cfgSet("ultimo",st.ult);
   if(it.descripcion){cfgGet("descs").then(function(d){d=(d||[]).filter(function(x){return x!==it.descripcion});d.unshift(it.descripcion);cfgSet("descs",d.slice(0,40));pintarDescs(d)})}
